@@ -39,7 +39,7 @@ input_list * generate_input2(FILE *);
 input_list * create_node(int,int,int);
 void destroy_list (input_list *);
 char * * explode(const char *, const char *, int *);
-
+queue_len * create_queue_len ( int);
 
 
 input_list * create_node(int actual_time, int service, int priority)
@@ -233,18 +233,24 @@ char * * explode(const char * str, const char * delims, int * arrLen)
 return dest;
 }
 
+queue_len * create_queue_len ( int length)
+{
+  queue_len * node = malloc (sizeof(queue_len));
+  node -> next = NULL;
+  node -> length = length;
+  return node;
+}
 
 int main(int argc, char ** argv)
 {
   //Generate mode
-  printf("%d\n",argc);
   if (argc != 2 && argc != 5)
   {
     printf("\nNot valid option\n");
     return EXIT_FAILURE;
   }
   
-  input_list * input;
+  input_list * input = NULL;
   if (input == NULL)
     return EXIT_FAILURE;
   
@@ -274,32 +280,90 @@ int main(int argc, char ** argv)
   buffer_list queue0_list;
   buffer_list queue1_list;
   input_list * time_ptr = input;
-  int time = 0;
+  int running_time = 0;
   int status = 0;
   int queue0 = 0;
   int queue1 = 0;
-  int size_queue = 0;
   int cpu_usage = 0;
-  int avg_waitng0 = 0;
-  int avg_waitng1 = 0;
+  int avg_waiting0 = 0;
+  int avg_waiting1 = 0;
   int out = 0;
-  input_list * server_ptr == NULL;
+  queue_len * queue_head; // head of linked list containing the avg queue length
+  queue_len * queue_current; // keeps track of the back of the queue link list
+  input_list * server_ptr = NULL;
+
+  queue_head = create_queue_len (0);
+  queue_current = queue_head;
   while (out == 0)
     {
-      if (status == 0)
+      if (status == 1)
+	{//check server full
+	  if(server_ptr -> time_out >= running_time){
+	    status = 0;
+	  }
+	}
+      while (time_ptr -> actual_time <= running_time)
 	{
-	  if (queue0 > 0)
+	  if (time_ptr -> priority == 0)
 	    {
+	      if(queue0 == 0){
+		queue0_list.front = time_ptr;
+	      }
+	      else 
+		{
+		  queue0_list.back -> buffnext = time_ptr;
+		}
+	      queue0_list.back = time_ptr;
+	      queue0++;
+	    }
+	  else
+	    {
+	      if(queue1 == 0){
+		queue1_list.front = time_ptr;
+	      }
+	      else 
+		{
+		  queue1_list.back -> buffnext = time_ptr;
+		}
+	      queue1_list.back = time_ptr;
+	      queue1++;
+	    }
+	  time_ptr = time_ptr -> next;
+	}
+      if (status == 0)
+	{//check server is empty
+	  if (queue0 > 0)
+	    {//getting 0 priority into server
 	      server_ptr = queue0_list.front;
 	      status = 1;
 	      queue0_list.front = queue0_list.front -> next;
-	      server_ptr -> time_in_queue = time - server_ptr -> actual_time;
-	      server_ptr -> time_out = time + server_ptr -> time_in_queue + server_ptr -> service;
-
+	      queue0--;
+	      server_ptr -> time_in_queue = running_time - server_ptr -> actual_time;
+	      server_ptr -> time_out = running_time + server_ptr -> time_in_queue + server_ptr -> service;
+	      cpu_usage += server_ptr -> service;
+	      avg_waiting0 += server_ptr -> time_in_queue;
 	    }
-
+	  else if (queue1 > 0)
+	    {//getting 1 into servers
+	      server_ptr = queue1_list.front;
+	      status = 1;
+	      queue1_list.front = queue1_list.front -> next;
+	      queue1--;
+	      server_ptr -> time_in_queue = running_time - server_ptr -> actual_time;
+	      server_ptr -> time_out = running_time + server_ptr -> time_in_queue + server_ptr -> service;
+	      cpu_usage += server_ptr -> service;
+	      avg_waiting1 += server_ptr -> time_in_queue;
+	    }
 	}
       
+      queue_current -> next = create_queue_len (queue1 + queue0);
+      queue_current = queue_current -> next;
+      if (queue0 == 0 && queue1 == 0 && status == 0 && time_ptr == NULL)
+	{
+	  out = 1;
+	  running_time--;
+	}
+      running_time++;
     }
 
 
