@@ -1,7 +1,7 @@
 /* This file contains the source code for ECE 368 Project #1 on priority queues
 
   Written by: Michael Baio and Igal Flegmann
-  
+  Disclaimer: this program can only simulate up to 100,000 clients per category 200,000 total
   */
 
 
@@ -89,7 +89,6 @@ input_list * generate_input2 (FILE * ptr)
       arrival = atoi (inputs[0]);
       priority = atoi (inputs[1]);
       service = atoi (inputs[2]);
-      printf (" arriva %d priority = %d service = %d\n", arrival, priority, service);
       current -> next = create_node(arrival, service, priority);
       current = current -> next;
       free(inputs[0]);
@@ -270,12 +269,7 @@ int main(int argc, char ** argv)
   }
   
   
-  /* while (input != NULL) */
-  /* { */
-  /*   printf("Actual time: %d Service time: %d Priority %d\n",input->actual_time,input->service,input->priority); */
-  /*   input = input -> next; */
-  /* } */
-  //declarations #billy crum
+  //local declarations
   buffer_list queue0_list;
   buffer_list queue1_list;
   input_list * time_ptr = input;
@@ -289,6 +283,7 @@ int main(int argc, char ** argv)
   int out = 0;
   int num_0 = 0;
   int num_1 = 0;
+  float sum_length = 0; // sum of the lengths of queues used for avg que length
   queue_len * queue_head; // head of linked list containing the avg queue length
   queue_len * queue_current; // keeps track of the back of the queue link list
   input_list * server_ptr = NULL;
@@ -377,7 +372,7 @@ int main(int argc, char ** argv)
       running_time++;
     }
 
-  float sum_length = 0;
+  
   while (queue_head != NULL)
   {
     sum_length += queue_head -> length;
@@ -386,15 +381,16 @@ int main(int argc, char ** argv)
     free(queue_current);
   }
 
-   printf("Average waiting time for 0: %f\n",(float) avg_waiting0 / num_0);
-   printf("Average waiting time for 1: %f\n",(float) avg_waiting1 / num_1);
-   printf("Average Queue length: %f\n", sum_length / running_time);
-   printf("Average Utilization of CPU: %f\n",(float) cpu_usage / running_time);
-
+   printf("Average waiting time for 0: %f seconds\n",(float) avg_waiting0 / num_0);
+   printf("Average waiting time for 1: %f seconds\n",(float) avg_waiting1 / num_1);
+   printf("Average Queue length: %f clients\n", sum_length / running_time);
+   printf("Average Utilization of CPU: %f \n",(float) cpu_usage / running_time);
+   printf("Utilization of CPU Percentage: %f %% \n",(float) 100 * cpu_usage / running_time);
+/*
   printf("sum waiting 0: %d num_0: %d\n",avg_waiting0 , num_0);
   printf("sum waiting 1: %d num_1: %d\n",avg_waiting1 , num_1);
   printf("sum length: %f running_time: %d\n",sum_length , running_time);
-  printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);
+  printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);*/
   destroy_list (input);
   return 0;
 }
