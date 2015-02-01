@@ -1,6 +1,6 @@
 /* This file contains the source code for ECE 368 Project #1 on priority queues
 
-  Written by: Michael Baio and Igal Fleggman
+  Written by: Michael Baio and Igal Flegmann
   
   */
 
@@ -251,8 +251,7 @@ int main(int argc, char ** argv)
   }
   
   input_list * input = NULL;
-  if (input == NULL)
-    return EXIT_FAILURE;
+
   
   if (argc == 2)
   {
@@ -271,11 +270,11 @@ int main(int argc, char ** argv)
   }
   
   
-  while (input != NULL)
-  {
-    printf("Actual time: %d Service time: %d Priority %d\n",input->actual_time,input->service,input->priority);
-    input = input -> next;
-  }
+  /* while (input != NULL) */
+  /* { */
+  /*   printf("Actual time: %d Service time: %d Priority %d\n",input->actual_time,input->service,input->priority); */
+  /*   input = input -> next; */
+  /* } */
   //declarations #billy crum
   buffer_list queue0_list;
   buffer_list queue1_list;
@@ -288,6 +287,8 @@ int main(int argc, char ** argv)
   int avg_waiting0 = 0;
   int avg_waiting1 = 0;
   int out = 0;
+  int num_0 = 0;
+  int num_1 = 0;
   queue_len * queue_head; // head of linked list containing the avg queue length
   queue_len * queue_current; // keeps track of the back of the queue link list
   input_list * server_ptr = NULL;
@@ -298,11 +299,11 @@ int main(int argc, char ** argv)
     {
       if (status == 1)
 	{//check server full
-	  if(server_ptr -> time_out >= running_time){
+	  if(server_ptr -> time_out <= running_time){
 	    status = 0;
 	  }
 	}
-      while (time_ptr -> actual_time <= running_time)
+      while (time_ptr != NULL && time_ptr -> actual_time <= running_time)
 	{
 	  if (time_ptr -> priority == 0)
 	    {
@@ -315,6 +316,7 @@ int main(int argc, char ** argv)
 		}
 	      queue0_list.back = time_ptr;
 	      queue0++;
+	      num_0++;
 	    }
 	  else
 	    {
@@ -327,9 +329,12 @@ int main(int argc, char ** argv)
 		}
 	      queue1_list.back = time_ptr;
 	      queue1++;
+	      num_1++;
 	    }
 	  time_ptr = time_ptr -> next;
+
 	}
+	
       if (status == 0)
 	{//check server is empty
 	  if (queue0 > 0)
@@ -365,6 +370,25 @@ int main(int argc, char ** argv)
 	}
       running_time++;
     }
+
+  float sum_length = 0;
+  while (queue_head != NULL)
+  {
+    sum_length += queue_head -> length;
+    queue_current = queue_head;
+    queue_head = queue_head -> next;
+    free(queue_current);
+  }
+
+//   printf("Average waiting time for 0: %f\n",(float) avg_waiting0 / num_0);
+//   printf("Average waiting time for 1: %f\n",(float) avg_waiting1 / num_1);
+//   printf("Average Queue length: %f\n", sum_length / running_time);
+//   printf("Average Utilization of CPU: %f\n",(float) cpu_usage / running_time);
+
+  printf("sum waiting 0: %d num_0: %d\n",avg_waiting0 , num_0);
+  printf("sum waiting 1: %d num_1: %d\n",avg_waiting1 , num_1);
+  printf("sum length: %f running_time: %d\n",sum_length , running_time);
+  printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);
 
 
   return 0;
