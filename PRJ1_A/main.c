@@ -361,7 +361,7 @@ int main(int argc, char ** argv)
 		queue1_list.front = queue1_list.front -> buffnext;
 	      }	
 	      server_ptr -> time_in_queue = running_time - server_ptr -> actual_time;
-	      server_ptr -> time_out = running_time + server_ptr -> time_in_queue + server_ptr -> service;
+	      server_ptr -> time_out = running_time + server_ptr -> service;
 	      cpu_usage += server_ptr -> service;
 	      avg_waiting1 += server_ptr -> time_in_queue;
 	    }
@@ -386,17 +386,15 @@ int main(int argc, char ** argv)
     free(queue_current);
   }
 
-//   printf("Average waiting time for 0: %f\n",(float) avg_waiting0 / num_0);
-//   printf("Average waiting time for 1: %f\n",(float) avg_waiting1 / num_1);
-//   printf("Average Queue length: %f\n", sum_length / running_time);
-//   printf("Average Utilization of CPU: %f\n",(float) cpu_usage / running_time);
+   printf("Average waiting time for 0: %f\n",(float) avg_waiting0 / num_0);
+   printf("Average waiting time for 1: %f\n",(float) avg_waiting1 / num_1);
+   printf("Average Queue length: %f\n", sum_length / running_time);
+   printf("Average Utilization of CPU: %f\n",(float) cpu_usage / running_time);
 
-  printf("sum waiting 0: %d num_0: %d\n",avg_waiting0 , num_0);
-  printf("sum waiting 1: %d num_1: %d\n",avg_waiting1 , num_1);
-  printf("sum length: %f running_time: %d\n",sum_length , running_time);
-  printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);
-
-
+ // printf("sum waiting 0: %d num_0: %d\n",avg_waiting0 , num_0);
+ // printf("sum waiting 1: %d num_1: %d\n",avg_waiting1 , num_1);
+ // printf("sum length: %f running_time: %d\n",sum_length , running_time);
+ // printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);
+  destroy_list (input);
   return 0;
 }
-
