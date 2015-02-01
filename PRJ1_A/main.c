@@ -341,10 +341,13 @@ int main(int argc, char ** argv)
 	    {//getting 0 priority into server
 	      server_ptr = queue0_list.front;
 	      status = 1;
-	      queue0_list.front = queue0_list.front -> next;
 	      queue0--;
+	      if (queue0 > 0)
+	      {
+		queue0_list.front = queue0_list.front -> buffnext;
+	      }
 	      server_ptr -> time_in_queue = running_time - server_ptr -> actual_time;
-	      server_ptr -> time_out = running_time + server_ptr -> time_in_queue + server_ptr -> service;
+	      server_ptr -> time_out = running_time  + server_ptr -> service;
 	      cpu_usage += server_ptr -> service;
 	      avg_waiting0 += server_ptr -> time_in_queue;
 	    }
@@ -352,8 +355,11 @@ int main(int argc, char ** argv)
 	    {//getting 1 into servers
 	      server_ptr = queue1_list.front;
 	      status = 1;
-	      queue1_list.front = queue1_list.front -> next;
 	      queue1--;
+	      if(queue1 > 0)
+	      {
+		queue1_list.front = queue1_list.front -> buffnext;
+	      }	
 	      server_ptr -> time_in_queue = running_time - server_ptr -> actual_time;
 	      server_ptr -> time_out = running_time + server_ptr -> time_in_queue + server_ptr -> service;
 	      cpu_usage += server_ptr -> service;
