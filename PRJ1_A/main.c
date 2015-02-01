@@ -1,6 +1,10 @@
 /* This file contains the source code for ECE 368 Project #1 on priority queues
 
   Written by: Michael Baio and Igal Flegmann
+  This program takes two types of modes:
+    Mode 1: <executable> <lamba_0> <lamba_1> <mu> <# of tasks>
+    Mode 2: <executable> <file.txt>  (where file.txt contains lines with the format <arrival time> <priority> <service time>
+  
   Disclaimer: this program can only simulate up to 100,000 clients per category 200,000 total
   */
 
@@ -254,6 +258,7 @@ int main(int argc, char ** argv)
   
   if (argc == 2)
   {
+    printf("Mode: 2\tSource File: %s\n\n",argv[1]);
     FILE * fptr = fopen(argv[1],"r");
     if (fptr == NULL)
       return EXIT_FAILURE;
@@ -261,6 +266,7 @@ int main(int argc, char ** argv)
   }
   else
   {
+    printf("Mode: 1\tParameters: %s, %s, %s, %s\n\n",argv[1],argv[2],argv[3],argv[4]);
     float lamba_0 = atof(argv[1]);
     float lamba_1 = atof(argv[2]);
     float mu = atoll(argv[3]);
@@ -300,6 +306,8 @@ int main(int argc, char ** argv)
 	}
       while (time_ptr != NULL && time_ptr -> actual_time <= running_time)
 	{
+	  queue_current -> next = create_queue_len (queue1 + queue0);
+	  queue_current = queue_current -> next;	
 	  if (time_ptr -> priority == 0)
 	    {
 	      if(queue0 == 0){
@@ -362,8 +370,7 @@ int main(int argc, char ** argv)
 	    }
 	}
       
-      queue_current -> next = create_queue_len (queue1 + queue0);
-      queue_current = queue_current -> next;
+      
       if (queue0 == 0 && queue1 == 0 && status == 0 && time_ptr == NULL)
 	{
 	  out = 1;
@@ -380,10 +387,10 @@ int main(int argc, char ** argv)
     queue_head = queue_head -> next;
     free(queue_current);
   }
-
+   
    printf("Average waiting time for 0: %f seconds\n",(float) avg_waiting0 / num_0);
    printf("Average waiting time for 1: %f seconds\n",(float) avg_waiting1 / num_1);
-   printf("Average Queue length: %f clients\n", sum_length / running_time);
+   printf("Average Queue length: %f clients\n", sum_length / (num_0 + num_1));
    printf("Average Utilization of CPU: %f \n",(float) cpu_usage / running_time);
    printf("Utilization of CPU Percentage: %f %% \n",(float) 100 * cpu_usage / running_time);
 /*

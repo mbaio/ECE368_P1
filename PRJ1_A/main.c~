@@ -1,7 +1,11 @@
 /* This file contains the source code for ECE 368 Project #1 on priority queues
 
   Written by: Michael Baio and Igal Flegmann
+  This program takes two types of modes:
+    Mode 1: <executable> <lamba_0> <lamba_1> <mu> <# of tasks>
+    Mode 2: <executable> <file.txt>  (where file.txt contains lines with the format <arrival time> <priority> <service time>
   
+  Disclaimer: this program can only simulate up to 100,000 clients per category 200,000 total
   */
 
 
@@ -300,6 +304,8 @@ int main(int argc, char ** argv)
 	}
       while (time_ptr != NULL && time_ptr -> actual_time <= running_time)
 	{
+	  queue_current -> next = create_queue_len (queue1 + queue0);
+	  queue_current = queue_current -> next;	
 	  if (time_ptr -> priority == 0)
 	    {
 	      if(queue0 == 0){
@@ -362,8 +368,7 @@ int main(int argc, char ** argv)
 	    }
 	}
       
-      queue_current -> next = create_queue_len (queue1 + queue0);
-      queue_current = queue_current -> next;
+      
       if (queue0 == 0 && queue1 == 0 && status == 0 && time_ptr == NULL)
 	{
 	  out = 1;
@@ -381,15 +386,16 @@ int main(int argc, char ** argv)
     free(queue_current);
   }
 
-   printf("Average waiting time for 0: %f\n",(float) avg_waiting0 / num_0);
-   printf("Average waiting time for 1: %f\n",(float) avg_waiting1 / num_1);
-   printf("Average Queue length: %f\n", sum_length / running_time);
-   printf("Average Utilization of CPU: %f\n",(float) cpu_usage / running_time);
-
+   printf("Average waiting time for 0: %f seconds\n",(float) avg_waiting0 / num_0);
+   printf("Average waiting time for 1: %f seconds\n",(float) avg_waiting1 / num_1);
+   printf("Average Queue length: %f clients\n", sum_length / (num_0 + num_1));
+   printf("Average Utilization of CPU: %f \n",(float) cpu_usage / running_time);
+   printf("Utilization of CPU Percentage: %f %% \n",(float) 100 * cpu_usage / running_time);
+/*
   printf("sum waiting 0: %d num_0: %d\n",avg_waiting0 , num_0);
   printf("sum waiting 1: %d num_1: %d\n",avg_waiting1 , num_1);
   printf("sum length: %f running_time: %d\n",sum_length , running_time);
-  printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);
+  printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);*/
   destroy_list (input);
   return 0;
 }
