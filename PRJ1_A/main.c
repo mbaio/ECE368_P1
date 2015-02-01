@@ -391,10 +391,10 @@ int main(int argc, char ** argv)
    printf("Average Queue length: %f\n", sum_length / running_time);
    printf("Average Utilization of CPU: %f\n",(float) cpu_usage / running_time);
 
- // printf("sum waiting 0: %d num_0: %d\n",avg_waiting0 , num_0);
- // printf("sum waiting 1: %d num_1: %d\n",avg_waiting1 , num_1);
- // printf("sum length: %f running_time: %d\n",sum_length , running_time);
- // printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);
+  printf("sum waiting 0: %d num_0: %d\n",avg_waiting0 , num_0);
+  printf("sum waiting 1: %d num_1: %d\n",avg_waiting1 , num_1);
+  printf("sum length: %f running_time: %d\n",sum_length , running_time);
+  printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);
   destroy_list (input);
   return 0;
 }
