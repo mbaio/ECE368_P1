@@ -1,0 +1,41 @@
+Mode: 1 Parameters: 0.8, 0.5, 1.5, 10000
+
+Average waiting time for 0: 1.548600 seconds
+Average waiting time for 1: 6083.138184 seconds
+Average Queue length: 1920.933228 clients
+Average Utilization of CPU: 0.999748
+Utilization of CPU Percentage: 99.974808 %
+
+
+
+
+
+Mode: 2 Source File: input.txt
+
+Average waiting time for 0: 3.400000 seconds
+Average waiting time for 1: 13.500000 seconds
+Average Queue length: 1.428571 clients
+Average Utilization of CPU: 0.709677
+Utilization of CPU Percentage: 70.967743 %
+
+
+
+
+Mode: 1 Parameters: 0.5, 0.4, 1, 10000
+
+Average waiting time for 0: 1.200600 seconds
+Average waiting time for 1: 1124.628174 seconds
+Average Queue length: 355.053345 clients
+Average Utilization of CPU: 0.999842
+Utilization of CPU Percentage: 99.984238 %
+
+
+
+
+Mode: 1 Parameters: 0.5, 0.4, 1, 10000
+
+Average waiting time for 0: 1.161200 seconds
+Average waiting time for 1: 1411.717285 seconds
+Average Queue length: 452.381561 clients
+Average Utilization of CPU: 0.999330
+Utilization of CPU Percentage: 99.932999 %
