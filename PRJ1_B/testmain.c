@@ -18,13 +18,11 @@
 
 typedef struct linky {
   int actual_time;
-  int sub_tasks;
-  int * array_sub;
+  int service;
   int priority;
   int time_out;
   struct linky * next;
   struct linky * buffnext;
-  
   int time_in_queue;
 }input_list;
 
@@ -39,28 +37,20 @@ typedef struct buffy {
 }buffer_list;
 
 
-  
-
 input_list * List_merge (input_list *, input_list *);
 input_list * generate_input1(float,float,float,int);
 input_list * generate_input2(FILE *);
-input_list * create_node(int,int,int,int *);
+input_list * create_node(int,int,int);
 void destroy_list (input_list *);
 char * * explode(const char *, const char *, int *);
 queue_len * create_queue_len ( int);
 
 
-input_list * create_node(int actual_time, int sub_tasks, int priority, int * sublist)
+input_list * create_node(int actual_time, int service, int priority)
 {
-  int i;
   input_list * node = malloc(sizeof(input_list));
-  node -> array_sub = malloc(sizeof(int) * sub_tasks);
-  for (i = 0; i < sub_tasks; i ++)
-    {
-      node -> array_sub[i] = sublist[i]; 
-    }
   node -> actual_time = actual_time;
-  node-> sub_tasks = sub_tasks;
+  node-> service = service;
   node -> priority = priority;
   node -> time_in_queue = 0;
   node -> time_out = 0;
@@ -71,57 +61,43 @@ input_list * create_node(int actual_time, int sub_tasks, int priority, int * sub
 
 input_list * generate_input2 (FILE * ptr)
 {
-  char str[200];
+  char str [60];
   int alength;
   char ** inputs;
   int arrival;
   int priority;
-  int sub_tasks;
+  int service;
   char delims = ' ';
   input_list * input0;
   input_list * current;
-  int i;
-  int arr[32];
-  if (fgets(str, 200, ptr) != NULL)
+  if (fgets(str, 60, ptr) != NULL)
     {
       inputs  = explode (str, &delims, &alength);
       arrival = atoi (inputs[0]);
       priority = atoi (inputs[1]);
-      sub_tasks = atoi (inputs[2]);
-      for ( i = 3; i < alength; i ++)
-	{
-	  arr[i-3] = atoi(inputs[i]);
-	}
-      input0 = create_node(arrival, sub_tasks, priority, arr);
+      service = atoi (inputs[2]);
+      input0 = create_node(arrival, service, priority);
       current = input0;
-      for (i = 0; i < alength; i++)
-	{
-	  free(inputs[i]);
-	  
-	}
+      free(inputs[0]);
+      free(inputs[1]);
+      free(inputs[2]);
       free(inputs);
     }
   else
     {
       return NULL;
     }
-  while (fgets(str, 200, ptr) != NULL)
+  while (fgets(str, 60, ptr) != NULL)
     {
       inputs  = explode (str, &delims, &alength);
       arrival = atoi (inputs[0]);
       priority = atoi (inputs[1]);
-      sub_tasks = atoi (inputs[2]);
-      for ( i = 3; i < alength; i ++)
-	{
-	  arr[i-3] = atoi(inputs[i]);
-	}
-      current -> next = create_node(arrival, sub_tasks, priority, arr);
+      service = atoi (inputs[2]);
+      current -> next = create_node(arrival, service, priority);
       current = current -> next;
-      for (i = 0; i < alength; i++)
-	{
-	  free(inputs[i]);
-	  
-	}     
+      free(inputs[0]);
+      free(inputs[1]);
+      free(inputs[2]);
       free(inputs);
     }
   fclose(ptr);
@@ -133,61 +109,46 @@ input_list * generate_input1(float lamba_0,float lamba_1,float mu,int total_task
    int ind = 0;
    int current_time = 0;
    int intermediate_time = 0;
+   int service = 0;
    int priority = 0;
-   int i;
    input_list * input_merged;
-   int arr [32];
-   int sub_task;
    srand(time(NULL));
    intermediate_time = (int)(ceil(-1 / lamba_0 * log(1-((double)rand() / (double)RAND_MAX)))); 
-   sub_task = rand() % 32 + 1;
-   for(i = 0; i < sub_task; i++)
-     {
-       arr[i]  = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
-     }
-   input_list * input0 = create_node(intermediate_time, sub_task, priority, arr);
+   service = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
+   input_list * input0 = create_node(intermediate_time, service, priority);
    input_list * current = input0;
    current_time += intermediate_time;
    ind++;
       
    while (ind < total_tasks)
    {
-     srand(time(NULL));
-     sub_task = rand() % 32 + 1;
+     //srand(time(NULL));
      intermediate_time = (int)(ceil(-1 / lamba_1 * log(1-((double)rand() / (double)RAND_MAX))));
-     for(i = 0; i < sub_task; i++)
-     {
-       arr[i]  = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
-     }
+     service = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
      current_time += intermediate_time;
-     current -> next = create_node(current_time, sub_task ,priority, arr);
+     current -> next = create_node(current_time,service,priority);
      current = current -> next;
     ind++; 
    }
    ind = 0;
    current_time = 0;
    priority = 1;
-   sub_task = rand() % 32 + 1;
+   //srand(time(NULL));
    intermediate_time = (int)(ceil(-1 / lamba_1 * log(1-((double)rand() / (double)RAND_MAX)))); 
-   for(i = 0; i < sub_task; i++)
-     {
-       arr[i]  = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
-     }
-   input_list * input1 = create_node(current_time, sub_task ,priority, arr);
+   service = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
+   input_list * input1 = create_node(intermediate_time, service, priority);
    current = input1;
    current_time += intermediate_time;
    ind++;
       
    while (ind < total_tasks)
    {
-     sub_task = rand() % 32 + 1;
+      //srand(time(NULL));
      intermediate_time = (int)(ceil(-1 / lamba_1 * log(1-((double)rand() / (double)RAND_MAX)))); 
-     for(i = 0; i < sub_task; i++)
-     {
-       arr[i]  = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
-     }
+     service = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
+
      current_time += intermediate_time;
-     current -> next = create_node(current_time, sub_task ,priority, arr);
+     current -> next = create_node(current_time,service,priority);
      current = current -> next;
     ind++; 
    }
@@ -286,7 +247,6 @@ queue_len * create_queue_len ( int length)
 int main(int argc, char ** argv)
 {
   //Generate mode
-  int total_tasks;
   if (argc != 2 && argc != 5)
   {
     printf("\nNot valid option\n");
@@ -310,23 +270,12 @@ int main(int argc, char ** argv)
     float lamba_0 = atof(argv[1]);
     float lamba_1 = atof(argv[2]);
     float mu = atoll(argv[3]);
-    total_tasks = atoi(argv[4]);
+    int total_tasks = atoi(argv[4]);
     input = generate_input1(lamba_0,lamba_1,mu,total_tasks);
   }
   
-//   int ind;
-//   int ind2;
-//   for (ind = 0; ind < 5; ind++)
-//     {
-//       printf("Task #%d: # Sub tasks = %d\n",ind + 1, input -> sub_tasks);
-//       for (ind2 = 0; ind2 < input -> sub_tasks; ind2++)
-// 	{
-// 	  printf("\tSub Task #%d: %d\n",ind2,input -> array_sub[ind2]);
-// 	}
-//       printf("\n");
-//       input = input -> next;
-//     }
-  // local declarations
+  
+  //local declarations
   buffer_list queue0_list;
   buffer_list queue1_list;
   input_list * time_ptr = input;
@@ -340,9 +289,9 @@ int main(int argc, char ** argv)
   int out = 0;
   int num_0 = 0;
   int num_1 = 0;
-  float sum_length = 0; sum of the lengths of queues used for avg que length
-  queue_len * queue_head; head of linked list containing the avg queue length
-  queue_len * queue_current; keeps track of the back of the queue link list
+  float sum_length = 0; // sum of the lengths of queues used for avg que length
+  queue_len * queue_head; // head of linked list containing the avg queue length
+  queue_len * queue_current; // keeps track of the back of the queue link list
   input_list * server_ptr = NULL;
 
   queue_head = create_queue_len (0);
@@ -350,7 +299,7 @@ int main(int argc, char ** argv)
   while (out == 0)
     {
       if (status == 1)
-	{check server full
+	{//check server full
 	  if(server_ptr -> time_out <= running_time){
 	    status = 0;
 	  }
@@ -358,13 +307,13 @@ int main(int argc, char ** argv)
       while (time_ptr != NULL && time_ptr -> actual_time <= running_time)
 	{
 	  queue_current -> next = create_queue_len (queue1 + queue0);
-	  queue_current = queue_current -> next;
+	  queue_current = queue_current -> next;	
 	  if (time_ptr -> priority == 0)
 	    {
 	      if(queue0 == 0){
 		queue0_list.front = time_ptr;
 	      }
-	      else
+	      else 
 		{
 		  queue0_list.back -> buffnext = time_ptr;
 		}
@@ -377,7 +326,7 @@ int main(int argc, char ** argv)
 	      if(queue1 == 0){
 		queue1_list.front = time_ptr;
 	      }
-	      else
+	      else 
 		{
 		  queue1_list.back -> buffnext = time_ptr;
 		}
@@ -390,9 +339,9 @@ int main(int argc, char ** argv)
 	}
 	
       if (status == 0)
-	{check server is empty
+	{//check server is empty
 	  if (queue0 > 0)
-	    {getting 0 priority into server
+	    {//getting 0 priority into server
 	      server_ptr = queue0_list.front;
 	      status = 1;
 	      queue0--;
@@ -406,14 +355,14 @@ int main(int argc, char ** argv)
 	      avg_waiting0 += server_ptr -> time_in_queue;
 	    }
 	  else if (queue1 > 0)
-	    {getting 1 into servers
+	    {//getting 1 into servers
 	      server_ptr = queue1_list.front;
 	      status = 1;
 	      queue1--;
 	      if(queue1 > 0)
 	      {
 		queue1_list.front = queue1_list.front -> buffnext;
-	      }
+	      }	
 	      server_ptr -> time_in_queue = running_time - server_ptr -> actual_time;
 	      server_ptr -> time_out = running_time + server_ptr -> service;
 	      cpu_usage += server_ptr -> service;
@@ -444,11 +393,11 @@ int main(int argc, char ** argv)
    printf("Average Queue length: %f clients\n", sum_length / (num_0 + num_1));
    printf("Average Utilization of CPU: %f \n",(float) cpu_usage / running_time);
    printf("Utilization of CPU Percentage: %f %% \n",(float) 100 * cpu_usage / running_time);
-
+/*
   printf("sum waiting 0: %d num_0: %d\n",avg_waiting0 , num_0);
   printf("sum waiting 1: %d num_1: %d\n",avg_waiting1 , num_1);
   printf("sum length: %f running_time: %d\n",sum_length , running_time);
-  printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);
+  printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);*/
   destroy_list (input);
   return 0;
 }

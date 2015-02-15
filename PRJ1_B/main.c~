@@ -314,19 +314,19 @@ int main(int argc, char ** argv)
     input = generate_input1(lamba_0,lamba_1,mu,total_tasks);
   }
   
-//   int ind;
-//   int ind2;
-//   for (ind = 0; ind < 5; ind++)
-//     {
-//       printf("Task #%d: # Sub tasks = %d\n",ind + 1, input -> sub_tasks);
-//       for (ind2 = 0; ind2 < input -> sub_tasks; ind2++)
-// 	{
-// 	  printf("\tSub Task #%d: %d\n",ind2,input -> array_sub[ind2]);
-// 	}
-//       printf("\n");
-//       input = input -> next;
-//     }
-  // local declarations
+  int ind;
+  int ind2;
+  for (ind = 0; ind < 5; ind++)
+    {
+      printf("Task #%d: # Sub tasks = %d\n",ind + 1, input -> sub_tasks);
+      for (ind2 = 0; ind2 < input -> sub_tasks; ind2++)
+	{
+	  printf("\tSub Task #%d: %d\n",ind2,input -> array_sub[ind2]);
+	}
+      printf("\n");
+      input = input -> next;
+    }
+  /*  local declarations
   buffer_list queue0_list;
   buffer_list queue1_list;
   input_list * time_ptr = input;
@@ -449,6 +449,6 @@ int main(int argc, char ** argv)
   printf("sum waiting 1: %d num_1: %d\n",avg_waiting1 , num_1);
   printf("sum length: %f running_time: %d\n",sum_length , running_time);
   printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);
-  destroy_list (input);
+  destroy_list (input);*/
   return 0;
 }
