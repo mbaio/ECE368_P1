@@ -328,6 +328,7 @@ int main(int argc, char ** argv)
 //     }
   // local declarations
   buffer_list queue0_list;
+ input_list * q_temp;
   buffer_list queue1_list;
   input_list * time_ptr = input;
   int running_time = 0;
@@ -339,24 +340,33 @@ int main(int argc, char ** argv)
   int avg_waiting1 = 0;
   int out = 0;
   int num_0 = 0;
+  int i;
+  int j;
   int num_1 = 0;
-  float sum_length = 0; sum of the lengths of queues used for avg que length
-  queue_len * queue_head; head of linked list containing the avg queue length
-  queue_len * queue_current; keeps track of the back of the queue link list
+  int serv_check;
+  int serv_arr[64] = {0};
+  float sum_length = 0; //sum of the lengths of queues used for avg que length
+  queue_len * queue_head; //head of linked list containing the avg queue length
+  queue_len * queue_current; //keeps track of the back of the queue link list
   input_list * server_ptr = NULL;
 
   queue_head = create_queue_len (0);
   queue_current = queue_head;
   while (out == 0)
     {
-      if (status == 1)
-	{check server full
-	  if(server_ptr -> time_out <= running_time){
-	    status = 0;
-	  }
+      if (status > 0)
+	{//check server full
+	for(serv_check = 0; serv_check < 64; serv_check++)
+	{
+	    if(serv_arr[serv_check] <= running_time){
+	      serv_arr[serv_check] = 0;
+	      status--;
+	    }
+	}
 	}
       while (time_ptr != NULL && time_ptr -> actual_time <= running_time)
-	{
+	{// adding people to the q
+
 	  queue_current -> next = create_queue_len (queue1 + queue0);
 	  queue_current = queue_current -> next;
 	  if (time_ptr -> priority == 0)
@@ -387,37 +397,85 @@ int main(int argc, char ** argv)
 	    }
 	  time_ptr = time_ptr -> next;
 
-	}
+	}//end q input
 	
-      if (status == 0)
-	{check server is empty
+      if (status < 64)
+	{//check server is empty
 	  if (queue0 > 0)
-	    {getting 0 priority into server
-	      server_ptr = queue0_list.front;
-	      status = 1;
-	      queue0--;
-	      if (queue0 > 0)
+	    {//getting 0 priority into server
+	      q_temp = queue0_list.front;
+	    while(q_temp != NULL || status < 64)
+	    {
+	      if(q_temp -> sub_tasks < 64 - status)
 	      {
-		queue0_list.front = queue0_list.front -> buffnext;
+		server_ptr = q_temp;
+		status += server_ptr -> sub_tasks;
+		queue0--;
+		if (q_temp ==  queue0_list.front)
+		{
+		  queue0_list.front = queue0_list.front -> buffnext;
+		}
+		else
+		{
+		 q_temp = q_temp -> buffnext; 
+		}
+		server_ptr -> time_in_queue = running_time - server_ptr -> actual_time;
+		for(i = 0; i < server_ptr -> sub_tasks; i++)
+		{
+		server_ptr -> array_sub[i]= running_time  + server_ptr -> array_sub[i];
+		}
+		i = 0;
+		for(j = 0; j < 64 ; j++)
+		{
+		  if(serv_arr[j] == 0)
+		  {
+		   serv_arr[j] = server_ptr -> array_sub[i];
+		   cpu_usage += server_ptr -> array_sub[i];
+		   i++;
+		  }
+		}
+		avg_waiting0 += server_ptr -> time_in_queue;
 	      }
-	      server_ptr -> time_in_queue = running_time - server_ptr -> actual_time;
-	      server_ptr -> time_out = running_time  + server_ptr -> service;
-	      cpu_usage += server_ptr -> service;
-	      avg_waiting0 += server_ptr -> time_in_queue;
+	      q_temp = q_temp -> buffnext;
+	     }
 	    }
-	  else if (queue1 > 0)
-	    {getting 1 into servers
-	      server_ptr = queue1_list.front;
-	      status = 1;
-	      queue1--;
-	      if(queue1 > 0)
+	  if (queue1 > 0 && status < 64)
+	    {//getting 1 into servers
+	    q_temp = queue1_list.front;
+	    while(q_temp != NULL || status < 64)
+	    {
+	      if(q_temp -> sub_tasks < 64 - status)
 	      {
-		queue1_list.front = queue1_list.front -> buffnext;
+		server_ptr = q_temp;
+		status += server_ptr -> sub_tasks;
+		queue1--;
+		if (q_temp ==  queue1_list.front)
+		{
+		  queue1_list.front = queue1_list.front -> buffnext;
+		}
+		else
+		{
+		 q_temp = q_temp -> buffnext; 
+		}
+		server_ptr -> time_in_queue = running_time - server_ptr -> actual_time;
+		for(i = 0; i < server_ptr -> sub_tasks; i++)
+		{
+		server_ptr -> array_sub[i]= running_time  + server_ptr -> array_sub[i];
+		}
+		i = 0;
+		for(j = 0; j < 64 ; j++)
+		{
+		  if(serv_arr[j] == 0)
+		  {
+		   serv_arr[j] = server_ptr -> array_sub[i];
+		   cpu_usage += server_ptr -> array_sub[i];
+		   i++;
+		  }
+		}
+		avg_waiting1 += server_ptr -> time_in_queue;
 	      }
-	      server_ptr -> time_in_queue = running_time - server_ptr -> actual_time;
-	      server_ptr -> time_out = running_time + server_ptr -> service;
-	      cpu_usage += server_ptr -> service;
-	      avg_waiting1 += server_ptr -> time_in_queue;
+	      q_temp = q_temp -> buffnext;
+	     }
 	    }
 	}
       
