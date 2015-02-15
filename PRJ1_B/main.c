@@ -342,23 +342,30 @@ int main(int argc, char ** argv)
   int num_0 = 0;
   int i;
   int j;
+  int scounter = 0;
+  int smax = 0; 
+  int smin = 1000;
   int num_1 = 0;
   int serv_check;
-  int serv_arr[64] = {0};
+  int serv_arr[64];
   float sum_length = 0; //sum of the lengths of queues used for avg que length
   queue_len * queue_head; //head of linked list containing the avg queue length
   queue_len * queue_current; //keeps track of the back of the queue link list
   input_list * server_ptr = NULL;
-
+  
   queue_head = create_queue_len (0);
   queue_current = queue_head;
+    for (i = 0; i < 64; i++)
+    {
+     serv_arr[i]=0; 
+    }
   while (out == 0)
     {
       if (status > 0)
 	{//check server full
 	for(serv_check = 0; serv_check < 64; serv_check++)
 	{
-	    if(serv_arr[serv_check] <= running_time){
+	    if(serv_arr[serv_check] != 0 && serv_arr[serv_check] <= running_time){
 	      serv_arr[serv_check] = 0;
 	      status--;
 	    }
@@ -404,7 +411,7 @@ int main(int argc, char ** argv)
 	  if (queue0 > 0)
 	    {//getting 0 priority into server
 	      q_temp = queue0_list.front;
-	    while(q_temp != NULL || status < 64)
+	    while(q_temp != NULL && status < 64)
 	    {
 	      if(q_temp -> sub_tasks < 64 - status)
 	      {
@@ -414,8 +421,9 @@ int main(int argc, char ** argv)
 		if (q_temp ==  queue0_list.front)
 		{
 		  queue0_list.front = queue0_list.front -> buffnext;
+		  q_temp = queue0_list.front;
 		}
-		else
+		else 
 		{
 		 q_temp = q_temp -> buffnext; 
 		}
@@ -431,18 +439,29 @@ int main(int argc, char ** argv)
 		  {
 		   serv_arr[j] = server_ptr -> array_sub[i];
 		   cpu_usage += server_ptr -> array_sub[i];
+		   if(smin > server_ptr -> array_sub[i])
+		     smin = server_ptr -> array_sub[i];
+		   if(smax < server_ptr -> array_sub[i])
+		     smax = server_ptr -> array_sub[i];
+		   scounter++;
 		   i++;
+		   if (i == server_ptr -> sub_tasks)
+		     break;
 		  }
+		
 		}
 		avg_waiting0 += server_ptr -> time_in_queue;
 	      }
-	      q_temp = q_temp -> buffnext;
+	      else
+	      {
+		q_temp = q_temp -> buffnext;
+	      }
 	     }
 	    }
 	  if (queue1 > 0 && status < 64)
 	    {//getting 1 into servers
 	    q_temp = queue1_list.front;
-	    while(q_temp != NULL || status < 64)
+	    while(q_temp != NULL && status < 64)
 	    {
 	      if(q_temp -> sub_tasks < 64 - status)
 	      {
@@ -452,6 +471,7 @@ int main(int argc, char ** argv)
 		if (q_temp ==  queue1_list.front)
 		{
 		  queue1_list.front = queue1_list.front -> buffnext;
+		  q_temp = queue0_list.front;
 		}
 		else
 		{
@@ -469,13 +489,23 @@ int main(int argc, char ** argv)
 		  {
 		   serv_arr[j] = server_ptr -> array_sub[i];
 		   cpu_usage += server_ptr -> array_sub[i];
+		   if(smin > server_ptr -> array_sub[i])
+		     smin = server_ptr -> array_sub[i];
+		   if(smax < server_ptr -> array_sub[i])
+		     smax = server_ptr -> array_sub[i];
+		   scounter++;
 		   i++;
+		   if (i == server_ptr -> sub_tasks)
+		     break;
 		  }
 		}
 		avg_waiting1 += server_ptr -> time_in_queue;
 	      }
-	      q_temp = q_temp -> buffnext;
-	     }
+	      else
+	      {
+		q_temp = q_temp -> buffnext;
+	      }
+	      }
 	    }
 	}
       
@@ -500,13 +530,15 @@ int main(int argc, char ** argv)
    printf("Average waiting time for 0: %f seconds\n",(float) avg_waiting0 / num_0);
    printf("Average waiting time for 1: %f seconds\n",(float) avg_waiting1 / num_1);
    printf("Average Queue length: %f clients\n", sum_length / (num_0 + num_1));
-   printf("Average Utilization of CPU: %f \n",(float) cpu_usage / running_time);
-   printf("Utilization of CPU Percentage: %f %% \n",(float) 100 * cpu_usage / running_time);
-
+   printf("Average Utilization of CPU: %f \n",(float) cpu_usage / (64 * running_time));
+   printf("Utilization of CPU Percentage: %f %% \n",(float) 100 * cpu_usage / (64 * running_time));
+   printf("Load Balancing Factor: %f\n",(float)(smax - smin) / (cpu_usage / scounter));
+   /*
   printf("sum waiting 0: %d num_0: %d\n",avg_waiting0 , num_0);
   printf("sum waiting 1: %d num_1: %d\n",avg_waiting1 , num_1);
   printf("sum length: %f running_time: %d\n",sum_length , running_time);
-  printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);
+  printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);*/
+
   destroy_list (input);
   return 0;
 }

@@ -344,14 +344,18 @@ int main(int argc, char ** argv)
   int j;
   int num_1 = 0;
   int serv_check;
-  int serv_arr[64] = {0};
+  int serv_arr[64];
   float sum_length = 0; //sum of the lengths of queues used for avg que length
   queue_len * queue_head; //head of linked list containing the avg queue length
   queue_len * queue_current; //keeps track of the back of the queue link list
   input_list * server_ptr = NULL;
-
+  
   queue_head = create_queue_len (0);
   queue_current = queue_head;
+    for (i = 0; i < 64; i++)
+    {
+     serv_arr[i]=0; 
+    }
   while (out == 0)
     {
       if (status > 0)
@@ -404,7 +408,7 @@ int main(int argc, char ** argv)
 	  if (queue0 > 0)
 	    {//getting 0 priority into server
 	      q_temp = queue0_list.front;
-	    while(q_temp != NULL || status < 64)
+	    while(q_temp != NULL && status < 64)
 	    {
 	      if(q_temp -> sub_tasks < 64 - status)
 	      {
@@ -415,7 +419,7 @@ int main(int argc, char ** argv)
 		{
 		  queue0_list.front = queue0_list.front -> buffnext;
 		}
-		else
+		else 
 		{
 		 q_temp = q_temp -> buffnext; 
 		}
@@ -429,20 +433,23 @@ int main(int argc, char ** argv)
 		{
 		  if(serv_arr[j] == 0)
 		  {
-		   serv_arr[j] = array_sub[i];
-		   cpu_usage += array_sub[i];
+		   serv_arr[j] = server_ptr -> array_sub[i];
+		   cpu_usage += server_ptr -> array_sub[i];
 		   i++;
 		  }
 		}
 		avg_waiting0 += server_ptr -> time_in_queue;
 	      }
-	      q_temp = q_temp -> buffnext;
+	      else
+	      {
+		q_temp = q_temp -> buffnext;
+	      }
 	     }
 	    }
 	  if (queue1 > 0 && status < 64)
 	    {//getting 1 into servers
 	    q_temp = queue1_list.front;
-	    while(q_temp != NULL || status < 64)
+	    while(q_temp != NULL && status < 64)
 	    {
 	      if(q_temp -> sub_tasks < 64 - status)
 	      {
@@ -467,15 +474,20 @@ int main(int argc, char ** argv)
 		{
 		  if(serv_arr[j] == 0)
 		  {
-		   serv_arr[j] = array_sub[i];
-		   cpu_usage += array_sub[i];
+		   serv_arr[j] = server_ptr -> array_sub[i];
+		   cpu_usage += server_ptr -> array_sub[i];
 		   i++;
+		   if (i == server_ptr -> sub_tasks)
+		     break;
 		  }
 		}
 		avg_waiting1 += server_ptr -> time_in_queue;
 	      }
-	      q_temp = q_temp -> buffnext;
-	     }
+	      else
+	      {
+		q_temp = q_temp -> buffnext;
+	      }
+	      }
 	    }
 	}
       
