@@ -1,4 +1,4 @@
-/* This file contains the source code for ECE 368 Project #1 on priority queues
+/* This file contains the source code for ECE 368 Project #1 part B on priority queues
 
   Written by: Michael Baio and Igal Flegmann
   This program takes two types of modes:

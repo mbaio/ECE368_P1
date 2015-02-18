@@ -1,0 +1,31 @@
+Mode: 2 Source File: input1.txt
+
+Average waiting time for 0: 0.111111 seconds
+Average waiting time for 1: 0.111111 seconds
+Average Queue length: 0.111111 clients      
+Average Utilization of CPU: 0.308160        
+Utilization of CPU Percentage: 30.815971 %  
+Load Balancing Factor: 3.055556  
+
+
+
+Mode: 1 Parameters: 0.5, 0.7, 1, 10000
+
+Average waiting time for 0: 0.000000 seconds
+Average waiting time for 1: 0.000000 seconds
+Average Queue length: 0.165250 clients      
+Average Utilization of CPU: 0.173756        
+Utilization of CPU Percentage: 17.375593 %  
+Load Balancing Factor: 2.252800 
+
+
+
+
+Mode: 1 Parameters: 0.5, 0.4, 1, 10000                
+
+Average waiting time for 0: 0.000000 seconds
+Average waiting time for 1: 0.000000 seconds
+Average Queue length: 0.061400 clients
+Average Utilization of CPU: 0.089847
+Utilization of CPU Percentage: 8.984693 %
+Load Balancing Factor: 2.232300

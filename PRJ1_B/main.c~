@@ -139,7 +139,7 @@ input_list * generate_input1(float lamba_0,float lamba_1,float mu,int total_task
    int arr [32];
    int sub_task;
    srand(time(NULL));
-   intermediate_time = (int)(ceil(-1 / lamba_0 * log(1-((double)rand() / (double)RAND_MAX)))); 
+   intermediate_time = (int)(ceil(-1 / lamba_0 * log(1-((double)rand() / (double)RAND_MAX))));
    sub_task = rand() % 32 + 1;
    for(i = 0; i < sub_task; i++)
      {
@@ -314,18 +314,18 @@ int main(int argc, char ** argv)
     input = generate_input1(lamba_0,lamba_1,mu,total_tasks);
   }
   
-//   int ind;
-//   int ind2;
-//   for (ind = 0; ind < 5; ind++)
-//     {
-//       printf("Task #%d: # Sub tasks = %d\n",ind + 1, input -> sub_tasks);
-//       for (ind2 = 0; ind2 < input -> sub_tasks; ind2++)
-// 	{
-// 	  printf("\tSub Task #%d: %d\n",ind2,input -> array_sub[ind2]);
-// 	}
-//       printf("\n");
-//       input = input -> next;
-//     }
+  /* int ind; */
+  /* int ind2; */
+  /* for (ind = 0; ind < total_tasks * 2; ind++) */
+  /*   { */
+  /*     printf("Task #%d: # Sub tasks = %d\n",ind + 1, input -> sub_tasks); */
+  /*     for (ind2 = 0; ind2 < input -> sub_tasks; ind2++) */
+  /* 	{ */
+  /* 	  printf("\tSub Task #%d: %d\n",ind2,input -> array_sub[ind2]); */
+  /* 	} */
+  /*     printf("\n"); */
+  /*     input = input -> next; */
+  /*   } */
   // local declarations
   buffer_list queue0_list;
  input_list * q_temp;
@@ -342,6 +342,10 @@ int main(int argc, char ** argv)
   int num_0 = 0;
   int i;
   int j;
+  int scounter = 0;
+  int smax = 0; 
+  float sum_load = 0;
+  int smin = 1000;
   int num_1 = 0;
   int serv_check;
   int serv_arr[64];
@@ -362,7 +366,7 @@ int main(int argc, char ** argv)
 	{//check server full
 	for(serv_check = 0; serv_check < 64; serv_check++)
 	{
-	    if(serv_arr[serv_check] <= running_time){
+	    if(serv_arr[serv_check] != 0 && serv_arr[serv_check] <= running_time){
 	      serv_arr[serv_check] = 0;
 	      status--;
 	    }
@@ -418,6 +422,7 @@ int main(int argc, char ** argv)
 		if (q_temp ==  queue0_list.front)
 		{
 		  queue0_list.front = queue0_list.front -> buffnext;
+		  q_temp = queue0_list.front;
 		}
 		else 
 		{
@@ -429,15 +434,27 @@ int main(int argc, char ** argv)
 		server_ptr -> array_sub[i]= running_time  + server_ptr -> array_sub[i];
 		}
 		i = 0;
+		smin = 1000;
+		smax = 0;
+		scounter = 0;
 		for(j = 0; j < 64 ; j++)
 		{
 		  if(serv_arr[j] == 0)
 		  {
 		   serv_arr[j] = server_ptr -> array_sub[i];
-		   cpu_usage += server_ptr -> array_sub[i];
+		   cpu_usage += server_ptr -> array_sub[i]- running_time;
+		   if(smin > server_ptr -> array_sub[i] - running_time)
+		     smin =  server_ptr -> array_sub[i] - running_time;
+		   if(smax < server_ptr -> array_sub[i] - running_time)
+		     smax = server_ptr -> array_sub[i] - running_time;
+		   scounter += server_ptr -> array_sub[i]- running_time;
 		   i++;
+		   if (i == server_ptr -> sub_tasks)
+		     break;
 		  }
+		
 		}
+		sum_load += (smax - smin) / (scounter / i);
 		avg_waiting0 += server_ptr -> time_in_queue;
 	      }
 	      else
@@ -459,6 +476,7 @@ int main(int argc, char ** argv)
 		if (q_temp ==  queue1_list.front)
 		{
 		  queue1_list.front = queue1_list.front -> buffnext;
+		  q_temp = queue1_list.front;
 		}
 		else
 		{
@@ -470,17 +488,27 @@ int main(int argc, char ** argv)
 		server_ptr -> array_sub[i]= running_time  + server_ptr -> array_sub[i];
 		}
 		i = 0;
+		smin = 1000;
+		smax = 0;
+		scounter = 0;
 		for(j = 0; j < 64 ; j++)
 		{
 		  if(serv_arr[j] == 0)
 		  {
 		   serv_arr[j] = server_ptr -> array_sub[i];
-		   cpu_usage += server_ptr -> array_sub[i];
+		   cpu_usage += server_ptr -> array_sub[i]- running_time;
+		   if(smin > server_ptr -> array_sub[i] - running_time)
+		     smin =  server_ptr -> array_sub[i] - running_time;
+		   if(smax < server_ptr -> array_sub[i] - running_time)
+		     smax = server_ptr -> array_sub[i] - running_time;
+		   scounter += server_ptr -> array_sub[i]- running_time;
 		   i++;
 		   if (i == server_ptr -> sub_tasks)
 		     break;
 		  }
+		
 		}
+		sum_load += (smax - smin) / (scounter / i);
 		avg_waiting1 += server_ptr -> time_in_queue;
 	      }
 	      else
@@ -512,13 +540,15 @@ int main(int argc, char ** argv)
    printf("Average waiting time for 0: %f seconds\n",(float) avg_waiting0 / num_0);
    printf("Average waiting time for 1: %f seconds\n",(float) avg_waiting1 / num_1);
    printf("Average Queue length: %f clients\n", sum_length / (num_0 + num_1));
-   printf("Average Utilization of CPU: %f \n",(float) cpu_usage / running_time);
-   printf("Utilization of CPU Percentage: %f %% \n",(float) 100 * cpu_usage / running_time);
-
+   printf("Average Utilization of CPU: %f \n",(float) cpu_usage / (64 * running_time));
+   printf("Utilization of CPU Percentage: %f %% \n",(float) 100 * cpu_usage / (64 * running_time));
+   printf("Load Balancing Factor: %f\n",(float)(sum_load) / (num_0 + num_1));
+   /*
   printf("sum waiting 0: %d num_0: %d\n",avg_waiting0 , num_0);
   printf("sum waiting 1: %d num_1: %d\n",avg_waiting1 , num_1);
   printf("sum length: %f running_time: %d\n",sum_length , running_time);
   printf("cpu_usage: %d running_time: %d\n",cpu_usage, running_time);
+   */
   destroy_list (input);
   return 0;
 }
