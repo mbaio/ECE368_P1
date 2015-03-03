@@ -1,4 +1,4 @@
-/* This file contains the source code for ECE 368 Project #1 on priority queues
+/* This file contains the source code for ECE 368 Project #1 part B on priority queues
 
   Written by: Michael Baio and Igal Flegmann
   This program takes two types of modes:
@@ -15,21 +15,23 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#define CONST 1
+
 
 typedef struct linky {
-  int actual_time;
+  long int actual_time;
   int sub_tasks;
-  int * array_sub;
+  long int * array_sub;
   int priority;
-  int time_out;
+  long int time_out;
   struct linky * next;
   struct linky * buffnext;
   
-  int time_in_queue;
+  long int time_in_queue;
 }input_list;
 
 typedef struct queue_length {
-  int length;
+  long int length;
   struct queue_length * next;
 }queue_len;
 
@@ -44,17 +46,17 @@ typedef struct buffy {
 input_list * List_merge (input_list *, input_list *);
 input_list * generate_input1(float,float,float,int);
 input_list * generate_input2(FILE *);
-input_list * create_node(int,int,int,int *);
+input_list * create_node(long int,int,int,long int *);
 void destroy_list (input_list *);
 char * * explode(const char *, const char *, int *);
 queue_len * create_queue_len ( int);
 
 
-input_list * create_node(int actual_time, int sub_tasks, int priority, int * sublist)
+input_list * create_node(long int actual_time, int sub_tasks, int priority, long int * sublist)
 {
   int i;
   input_list * node = malloc(sizeof(input_list));
-  node -> array_sub = malloc(sizeof(int) * sub_tasks);
+  node -> array_sub = malloc(sizeof(long int) * sub_tasks);
   for (i = 0; i < sub_tasks; i ++)
     {
       node -> array_sub[i] = sublist[i]; 
@@ -81,7 +83,7 @@ input_list * generate_input2 (FILE * ptr)
   input_list * input0;
   input_list * current;
   int i;
-  int arr[32];
+  long int arr[32];
   if (fgets(str, 200, ptr) != NULL)
     {
       inputs  = explode (str, &delims, &alength);
@@ -131,33 +133,55 @@ input_list * generate_input2 (FILE * ptr)
 input_list * generate_input1(float lamba_0,float lamba_1,float mu,int total_tasks)
 {
    int ind = 0;
-   int current_time = 0;
+   float R;
+   long int current_time = 0;
    int intermediate_time = 0;
    int priority = 0;
    int i;
    input_list * input_merged;
-   int arr [32];
+   long int arr [32];
    int sub_task;
    srand(time(NULL));
-   intermediate_time = (int)(ceil(-1 / lamba_0 * log(1-((double)rand() / (double)RAND_MAX))));
+   double Y1;
+   double X;
+  // R = ((float)rand())/((float)(RAND_MAX));
+  /* X = 1;
+   while(X == 1){
+      X = (double) rand() / (double) RAND_MAX;
+    }
+    Y1 = (log(1-X)) / (-lamba_0);*/
+     
+   intermediate_time =  (int)(ceil(-1 / lamba_0 * log((float)rand()/(float)(RAND_MAX)))); //(int)(ceil(-1 / lamba_0 * log(1-((double)rand() / (double)RAND_MAX))));
    sub_task = rand() % 32 + 1;
    for(i = 0; i < sub_task; i++)
      {
-       arr[i]  = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
+       //R = (float)rand()/(RAND_MAX);
+     
+     
+    
+       arr[i]  = rand() % 6 + 1;//ceil(Y1); //rand() % 6 + 1;//(int)ceil(-1 / mu * log(R));//(int)(ceil(-1 / mu * log((float)rand()/(float)(RAND_MAX + 1))));//(int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
      }
    input_list * input0 = create_node(intermediate_time, sub_task, priority, arr);
    input_list * current = input0;
    current_time += intermediate_time;
    ind++;
-      
+   // srand(time(NULL));  
+   //(int)(ceil(-1 / lamba_0 * log((float)rand()/(float)(RAND_MAX + 1))));
    while (ind < total_tasks)
    {
-     srand(time(NULL));
+     
      sub_task = rand() % 32 + 1;
-     intermediate_time = (int)(ceil(-1 / lamba_1 * log(1-((double)rand() / (double)RAND_MAX))));
+    // R = (float)rand()/(float)(RAND_MAX);
+     
+      
+	intermediate_time = (int)(ceil(-1 / lamba_0 * log((float)rand()/(float)(RAND_MAX))));//(int)(ceil(-1 / lamba_1 * log(1-((double)rand() / (double)RAND_MAX))));
+     //printf("intermediate for 0: %d\n",intermediate_time);
      for(i = 0; i < sub_task; i++)
      {
-       arr[i]  = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
+       //R = (float)rand()/(float)(RAND_MAX);
+      
+     
+       arr[i]  = rand() % 6 + 1;//ceil(Y1);//(int)ceil(-1 / mu * log(R));//(int)(ceil(-1 / mu * log((float)rand()/(float)(RAND_MAX + 1))));//(int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
      }
      current_time += intermediate_time;
      current -> next = create_node(current_time, sub_task ,priority, arr);
@@ -168,10 +192,17 @@ input_list * generate_input1(float lamba_0,float lamba_1,float mu,int total_task
    current_time = 0;
    priority = 1;
    sub_task = rand() % 32 + 1;
-   intermediate_time = (int)(ceil(-1 / lamba_1 * log(1-((double)rand() / (double)RAND_MAX)))); 
+   //R = (float)rand()/(float)(RAND_MAX);
+   
+   
+   intermediate_time = (int)(ceil(-1 / lamba_1 * log((float)rand()/(float)(RAND_MAX))));//(int)(ceil(-1 / lamba_1 * log(1-((double)rand() / (double)RAND_MAX)))); 
+   
    for(i = 0; i < sub_task; i++)
      {
-       arr[i]  = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
+       
+     
+  
+       arr[i]  = rand() % 6 + 1;//ceil(Y1);//(int)ceil(-1 / mu * log(R));//(int)(ceil(-1 / mu * log((float)rand()/(float)(RAND_MAX + 1))));//(int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
      }
    input_list * input1 = create_node(current_time, sub_task ,priority, arr);
    current = input1;
@@ -181,10 +212,18 @@ input_list * generate_input1(float lamba_0,float lamba_1,float mu,int total_task
    while (ind < total_tasks)
    {
      sub_task = rand() % 32 + 1;
-     intermediate_time = (int)(ceil(-1 / lamba_1 * log(1-((double)rand() / (double)RAND_MAX)))); 
+     //R = (float)rand()/(float)(RAND_MAX);
+     
+
+       
+     intermediate_time = (int)(ceil(-1 / lamba_1 * log((float)rand()/(float)(RAND_MAX))));//(int)(ceil(-1 / lamba_1 * log(1-((double)rand() / (double)RAND_MAX)))); 
+     //printf("intermediate for 1: %d\n",intermediate_time);
      for(i = 0; i < sub_task; i++)
      {
-       arr[i]  = (int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
+       //R = (float)rand()/(float)(RAND_MAX);
+       
+       
+       arr[i]  = rand() % 6 + 1;//ceil(Y1);//(int)ceil(-1 / mu * log(R));//(int)ceil(-1 / mu * log(1-((double)rand() / (double)RAND_MAX))); 
      }
      current_time += intermediate_time;
      current -> next = create_node(current_time, sub_task ,priority, arr);
@@ -309,45 +348,50 @@ int main(int argc, char ** argv)
     printf("Mode: 1\tParameters: %s, %s, %s, %s\n\n",argv[1],argv[2],argv[3],argv[4]);
     float lamba_0 = atof(argv[1]);
     float lamba_1 = atof(argv[2]);
-    float mu = atoll(argv[3]);
+    float mu = atof(argv[3]);
     total_tasks = atoi(argv[4]);
+    printf("%f %f %f %d\n",lamba_0, lamba_1, mu, total_tasks);
     input = generate_input1(lamba_0,lamba_1,mu,total_tasks);
   }
   
-  /* int ind; */
-  /* int ind2; */
-  /* for (ind = 0; ind < total_tasks * 2; ind++) */
-  /*   { */
-  /*     printf("Task #%d: # Sub tasks = %d\n",ind + 1, input -> sub_tasks); */
-  /*     for (ind2 = 0; ind2 < input -> sub_tasks; ind2++) */
-  /* 	{ */
-  /* 	  printf("\tSub Task #%d: %d\n",ind2,input -> array_sub[ind2]); */
-  /* 	} */
-  /*     printf("\n"); */
-  /*     input = input -> next; */
-  /*   } */
+   int ind; 
+  int ind2; 
+  int tmax = 0;
+   for (ind = 0; ind < total_tasks * 2; ind++) 
+     { 
+       printf("Task #%d: # Sub tasks = %d Arrival time = %d Priority = %d\n",ind + 1, input -> sub_tasks, input -> actual_time, input -> priority); 
+       for (ind2 = 0; ind2 < input -> sub_tasks; ind2++) 
+   	{ 
+	  if (tmax < input -> array_sub[ind2]){
+	    tmax = input -> array_sub[ind2];}
+   	  printf("\tSub Task #%d: %d\n",ind2,input -> array_sub[ind2]); 
+   	} 
+       printf("\n"); 
+       input = input -> next; 
+     } 
+     printf("max subtask length = %d\n",tmax);
   // local declarations
   buffer_list queue0_list;
  input_list * q_temp;
   buffer_list queue1_list;
   input_list * time_ptr = input;
-  int running_time = 0;
+  long int running_time = 0;
   int status = 0;
-  int queue0 = 0;
-  int queue1 = 0;
-  int cpu_usage = 0;
-  int avg_waiting0 = 0;
-  int avg_waiting1 = 0;
+  long queue0 = 0;
+  long int queue1 = 0;
+  long int cpu_usage = 0;
+  long int avg_waiting0 = 0;
+  long int avg_waiting1 = 0;
   int out = 0;
-  int num_0 = 0;
+  long int num_0 = 0;
   int i;
   int j;
-  int scounter = 0;
-  int smax = 0; 
+  long int scounter = 0;
+  long int smax = 0; 
   float sum_load = 0;
-  int smin = 1000;
-  int num_1 = 0;
-  int serv_check;
+  long int smin = 1000;
+  long int num_1 = 0;
+  long int serv_check;
   int serv_arr[64];
   float sum_length = 0; //sum of the lengths of queues used for avg que length
   queue_len * queue_head; //head of linked list containing the avg queue length
@@ -362,21 +406,23 @@ int main(int argc, char ** argv)
     }
   while (out == 0)
     {
-      if (status > 0)
+      //printf("running time = %ld",running_time);
+      if (status > 0) //status is how many are in use
 	{//check server full
 	for(serv_check = 0; serv_check < 64; serv_check++)
 	{
+	 // printf("\n\tserv out = %d",serv_arr[serv_check]);
 	    if(serv_arr[serv_check] != 0 && serv_arr[serv_check] <= running_time){
 	      serv_arr[serv_check] = 0;
 	      status--;
 	    }
 	}
+	//printf("\n\n");
 	}
       while (time_ptr != NULL && time_ptr -> actual_time <= running_time)
 	{// adding people to the q
 
-	  queue_current -> next = create_queue_len (queue1 + queue0);
-	  queue_current = queue_current -> next;
+
 	  if (time_ptr -> priority == 0)
 	    {
 	      if(queue0 == 0){
@@ -404,8 +450,10 @@ int main(int argc, char ** argv)
 	      num_1++;
 	    }
 	  time_ptr = time_ptr -> next;
-
+	queue_current -> next = create_queue_len (queue1 + queue0);
+	queue_current = queue_current -> next;
 	}//end q input
+	
 	
       if (status < 64)
 	{//check server is empty
@@ -414,7 +462,7 @@ int main(int argc, char ** argv)
 	      q_temp = queue0_list.front;
 	    while(q_temp != NULL && status < 64)
 	    {
-	      if(q_temp -> sub_tasks < 64 - status)
+	      if(q_temp -> sub_tasks <= 64 - status)
 	      {
 		server_ptr = q_temp;
 		status += server_ptr -> sub_tasks;
@@ -437,7 +485,8 @@ int main(int argc, char ** argv)
 		smin = 1000;
 		smax = 0;
 		scounter = 0;
-		for(j = 0; j < 64 ; j++)
+		j = 0;
+		while(j < 64 && i != server_ptr -> sub_tasks)
 		{
 		  if(serv_arr[j] == 0)
 		  {
@@ -447,15 +496,18 @@ int main(int argc, char ** argv)
 		     smin =  server_ptr -> array_sub[i] - running_time;
 		   if(smax < server_ptr -> array_sub[i] - running_time)
 		     smax = server_ptr -> array_sub[i] - running_time;
-		   scounter += server_ptr -> array_sub[i]- running_time;
+		   scounter += server_ptr -> array_sub[i] - running_time;
+		   //printf("scounter ++ = %d\n",scounter);
 		   i++;
-		   if (i == server_ptr -> sub_tasks)
-		     break;
+		   
 		  }
-		
+		  j++;
 		}
+		if (i != 0)
+		{
 		sum_load += (smax - smin) / (scounter / i);
 		avg_waiting0 += server_ptr -> time_in_queue;
+		}
 	      }
 	      else
 	      {
@@ -468,7 +520,7 @@ int main(int argc, char ** argv)
 	    q_temp = queue1_list.front;
 	    while(q_temp != NULL && status < 64)
 	    {
-	      if(q_temp -> sub_tasks < 64 - status)
+	      if(q_temp -> sub_tasks <= 64 - status)
 	      {
 		server_ptr = q_temp;
 		status += server_ptr -> sub_tasks;
@@ -491,7 +543,8 @@ int main(int argc, char ** argv)
 		smin = 1000;
 		smax = 0;
 		scounter = 0;
-		for(j = 0; j < 64 ; j++)
+		j = 0;
+		while(j < 64 && i != server_ptr -> sub_tasks)
 		{
 		  if(serv_arr[j] == 0)
 		  {
@@ -502,11 +555,11 @@ int main(int argc, char ** argv)
 		   if(smax < server_ptr -> array_sub[i] - running_time)
 		     smax = server_ptr -> array_sub[i] - running_time;
 		   scounter += server_ptr -> array_sub[i]- running_time;
+		   //printf("scounter ++ = %d j = %d i = %d\n",server_ptr -> array_sub[i],j,i);
+		  
 		   i++;
-		   if (i == server_ptr -> sub_tasks)
-		     break;
 		  }
-		
+		j++;
 		}
 		sum_load += (smax - smin) / (scounter / i);
 		avg_waiting1 += server_ptr -> time_in_queue;
@@ -525,6 +578,7 @@ int main(int argc, char ** argv)
 	  out = 1;
 	  running_time--;
 	}
+     // printf("Running time: %d 0: %d 1: %d\n",running_time,queue0,queue1);
       running_time++;
     }
 
@@ -536,6 +590,16 @@ int main(int argc, char ** argv)
     queue_head = queue_head -> next;
     free(queue_current);
   }
+  
+  
+  while (input != NULL)
+  {
+    time_ptr = input;
+    free(time_ptr -> array_sub);
+    input = input -> next;
+    free(time_ptr);
+  }
+   
    
    printf("Average waiting time for 0: %f seconds\n",(float) avg_waiting0 / num_0);
    printf("Average waiting time for 1: %f seconds\n",(float) avg_waiting1 / num_1);
